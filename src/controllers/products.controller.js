@@ -101,3 +101,19 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 
   res.json({ message: "Product deleted successfully!" });
 });
+
+/////////// restock product /////////////////
+export const restockProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  const product = await Product.findById(id);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  product.stock += Number(quantity);
+  await product.save();
+  res.json(product);
+});

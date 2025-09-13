@@ -5,6 +5,7 @@ import {
   getProducts,
   updateProduct,
   deleteProduct,
+  restockProduct,
 } from "../controllers/products.controller.js";
 import upload from "../middlewares/upload.js";
 import { isAdmin, protect } from "../middlewares/auth.js";
@@ -104,5 +105,6 @@ router.post("/", protect, isAdmin, upload.array("images", 5), createProduct);
 
 router.put("/:id", protect, isAdmin, upload.single("image"), updateProduct);
 router.delete("/:id", protect, isAdmin, deleteProduct);
+router.post("/:id/restock", protect, isAdmin, restockProduct);
 
 export default router;
