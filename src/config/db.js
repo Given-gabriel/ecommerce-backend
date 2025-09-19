@@ -19,5 +19,11 @@ export async function connectDB() {
     console.warn("MongoDB disconnected")
   );
 
-  await mongoose.connect(url, { autoIndex: true });
+  try {
+    await mongoose.connect(url, { autoIndex: true });
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    process.exit(1);
+  }
 }

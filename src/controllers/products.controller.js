@@ -23,22 +23,48 @@ export const createProduct = asyncHandler(async (req, res) => {
 
 //////////get all products////////////////////////
 export const getProducts = asyncHandler(async (req, res) => {
-  const { category, page = 1, limit = 10 } = req.query;
-  const filter = category ? { category } : {};
+  const {
+    search,
+    category,
+    minPrice,
+    maxPrice,
+    page = 1,
+    limit = 10,
+  } = req.query;
 
-  const products = await Product.find(filter)
-    .skip((page - 1) * limit)
-    .limit(Number(limit));
+  let filter = {};
 
+  //search by name/description
+  if (search) {
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  //category filter
+  if (category) {
+    filter.category = category;
+  }
+
+  //price range filter
+  if (minPrice || maxPrice) {
+    filter.price = {};
+    if (minPrice) filter.price.$gte = Number(minPrice);
+    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+
+  //pagination
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const products = await Product.find(filter).skip(skip).limit(Number(limit));
   const total = await Product.countDocuments(filter);
 
   res.json({
     products,
-    pagination: {
-      total,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
-    },
+    total,
+    page: Number(page),
+    pages: Math.ceil(total / limit),
   });
 });
 
